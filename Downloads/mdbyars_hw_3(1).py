@@ -2,7 +2,7 @@ from __future__ import division, print_function
 import numpy as np
 import matplotlib.pyplot as plt
 import math 
-
+	
 hbar = 1.055*10**(-34)
 KB = 1.381*10**(-23)
 c = 299792458
@@ -37,33 +37,31 @@ def infRiemannSum(N, a, b, f):
 		lower = a
 		upper = a+10
 		dif = 1 
-		while (dif > ans*0.01 or upper<a+100): 
+		while (dif > ans*0.01 or upper<700): 
 			dif = ans - riemannSum(N, lower, upper, f)
 			ans += riemannSum(N, lower, upper, f)
-			lower+=upper
+			lower+=100
 			upper = lower+100
-		#	print(lower, upper)
+			print(lower, upper)
 	 
 	elif type(b) == type(3):
 		upper = b
 		lower = b-10
 		dif = 1 
-		while (dif > ans*0.01 or lower>b-100): 
+		while (dif > ans*0.01 or lower>-700): 
 			dif = ans - riemannSum(N, lower, upper, f)
 			ans += riemannSum(N, lower, upper, f)
 		upper+=-100
 		lower = upper - 100
 #		print(lower, upper)
 	return ans
-def wRad(T, y):
-#	print(x**3)
-#	print(math.exp(x))
-	return (KB**4 * T**4)/(4* math.pi**2 * c**2 * hbar**3) * infRiemannSum(1000, 0, "P", (lambda x: x**3 / (2.7182 **x)))    
+def wRad(T, x):
+	print(math.exp(x))
+	return (KB**4 * T**4)/(4* math.pi**2 * c**2 * hbar**3) * infRiemannSum(1000, 0, "P", (lambda x: x**3 / ((2.71828182845 **x))))  
 
-#	return infRiemannSum(1000, 0, "P", (lambda x: x**3 / (math.exp(x))))    
-print("This is the answer")
+
 print(wRad(4, 4))
-print("This right here")
+
 
 #5.14
 #Gauss Quad written by Mark Newman 
@@ -97,46 +95,32 @@ def gaussxwab(N,a,b):
     x,w = gaussxw(N)
     return 0.5*(b-a)*x+0.5*(b+a),0.5*(b-a)*w
 
-def integrateGaussQuad(n, a, b, f):
-        x, w = gaussxwab(n, a, b)
-        ans = 0
-        for i in range(len(x)):
-                ans += w[i]* f(x[i])
-        return ans
 
-
-G = 6.674*10**-11
-rho = 10
-        #return G*rho*z*integr
-
-F = (lambda z : z*(integrateGaussQuad(100, -5, 5, (lambda y: (integrateGaussQuad(200, -5, 5, (lambda x: 1/((x**2 + y**2 + z**2)**(3/2)))))))))
+def fZi(z, y):
+	#inner integral
+	i = 0
+	integr = 0
+	gaus = gaussxwab(100, -5, 5)
+	while i < len(gaus[0]):
+		integr += gaus[1][i]*(1/(gaus[0][i]**2 * y**2 * z**2)**(3/2))
+	return integr
+def fZo(z):
+	#outter integral 
+	i = 0 
+	integr = 0
+	gaus = gaussxwab(100, -5, 5)
+	while i < len(gaus[0]):
+		integr += gaus[1][i]*fZi(z, gaus[0][i])
+	G = 6.674*10**-11
+	rho = 10
+	return G*rho*z*integr
 
 i = 0
 fXs = []
 fYs = []
-while i <=10:
-        fXs += [i]
-        print(F(i))
-        fYs += [F(i)*G*rho]
-        i += 0.1
+while i <=10: 
+	fXs += [i]
+	fYs += [fZo(i)]
+	i += 0.1
 plt.plot(fXs, fYs)
-plt.show()
-
-#5.21
-def potential(r, q):
-	return q/(4*math.pi*(1.6*10**(-19))*r+0.0001)
-
-def doubleRPotential(a, b, i, j):
-	r1 = math.sqrt((i-a[0])**2+(j-a[1])**2)
-	r2 = math.sqrt((i-b[0])**2+(j-b[1])**2)
-	return potential(r1, 1)+potential(r2, -1)
-
-#point a 
-a = [5, 0]
-b = [10, 0]
-c = np.zeros((20,20))
-for i in range(19): 
-	for j in range(19): 
-		c[i][j]=doubleRPotential(a, b, i, j)
-plt.pcolor(c)
 plt.show()
