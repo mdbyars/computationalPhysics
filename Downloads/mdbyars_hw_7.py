@@ -41,10 +41,41 @@ while j<2000:
 	j+=1
 plt.plot(x, ydif)
 plt.show()
-f = lambda i : i*2
+
 for i in range(len(y)):
-	#y[i] = Derivative(lambda i: (y[i]/(x[i]**2 + x[i])), x[i]) 
-	y[i] = Derivative(f, 2) 
-plt.plot(x, y)
-plt.xscale('log')
+	f = lambda i: ((y[i]*2*np.pi)/(x[i]**2 + x[i])) 
+	y[i] = f(i)
+
+#now y is just Cltt 
+dy = np.zeros(len(y), np.float)
+dy[0:-1] = np.diff(y)/np.diff(x)
+dy[-1] = (y[-1] - y[-2])/(x[-1] - x[-2])
+
+plt.plot(dy)
+plt.yscale('log')
 plt.show()
+
+print(dy)
+def riemannSum(N, a, b, f):
+	dx = (b-a)/N
+	#inerating from a to b
+	i = a
+	# summing up the areas
+	area = 0
+	yS = []
+	xS = []
+	#looping from lower bound (a) to upper bound (b)
+	while i <=b:
+#		print(i)
+		height = f(i)
+		area += dx * height*-1
+		#yS will be a list of all the areas
+		yS = yS + [area]
+		xS = xS + [i]
+		i += dx
+	plt.plot(xS, yS)
+	plt.show()
+	return area	
+
+are = riemannSum(400, 1, 1999, lambda i: dy[i]*x[i] /(2*np.pi))
+print(are)
